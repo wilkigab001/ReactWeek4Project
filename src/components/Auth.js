@@ -15,12 +15,13 @@ const Auth = () => {
     
     const user = {
       username,
-      password,
+      password
     };
 
     if (register) {
       axios
-        .post("https://socialmtn.devmountain.com/register", user)
+      //was pointing to https whenever using local host it has to be http
+        .post("http://localhost:4000/register", user)
         .then((res) => {
           console.log(res.data);
           authCtx.login(res.data.token, res.data.exp, res.data.userId);
@@ -31,7 +32,7 @@ const Auth = () => {
         });
     } else if (!register) {
       axios
-        .post("https://socialmtn.devmountain.com/login", user)
+        .post("http://localhost:4000/login", user)
         .then((res) => {
           console.log(res.data);
           authCtx.login(res.data.token, res.data.exp, res.data.userId);

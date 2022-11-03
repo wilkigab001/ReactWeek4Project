@@ -47,7 +47,14 @@ export const AuthContextProvider = (props) => {
 
   const [token, setToken] = useState(initialToken)
   const [userId, setUserId] = useState(null)
-
+  //As the application boots up it checks the local storage to see if someone is logged in and then it saves that to state
+  
+  useEffect(() => {
+    let storedId = localStorage.getItem('userId')
+    if(storedId) {
+        setUserId(storedId)
+    }
+  }, [])
 
   const logout = (token, userId, logoutTimer) => {
     //Because these variables are just strings and not arrays setting them as null makes sure that they are now null and can't be called. Essentially logging out the user

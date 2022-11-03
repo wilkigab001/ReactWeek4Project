@@ -3,7 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
-const { PORT } = process.env;
+const { SERVER_PORT } = process.env;
 
 const {
   getAllPosts,
@@ -31,13 +31,13 @@ app.post("/login", login);
 
 app.get("/posts", getAllPosts);
 
-app.get("/userposts/:userID", getCurrentUsersPosts);
+app.get("/userposts/:userId", getCurrentUsersPosts);
 app.post("/posts", isAuthenticated, addPost);
 app.put("/posts/:id", isAuthenticated, editPosts);
 app.delete("/posts/:id", isAuthenticated, deletePosts);
-
+//use force: true to make surethe database is updated
 sequelize.sync().then(() => {
-  app.listen(PORT, () => {
-    console.log("listening on port " + PORT);
+  app.listen(SERVER_PORT, () => {
+    console.log("listening on port " + SERVER_PORT);
   });
 }).catch((err) => console.log(err))
