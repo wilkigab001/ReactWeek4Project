@@ -1,8 +1,19 @@
-require("dotenv").config();
 const { Post } = require("../models/post");
 const { User } = require("../models/user");
 
 module.exports = {
+  addPost: async (req, res) => {
+    try {
+      const { title, content, status, userId } = req.body;
+      await Post.create({ title, content, privateStatus: status, userId });
+      res.sendStatus(200);
+    } catch (err) {
+      console.log(err);
+      console.log("Cannot add post");
+      res.sendStatus(400);
+    }
+  },
+
   getAllPosts: async (req, res) => {
     try {
       const posts = await Post.findAll({
@@ -15,6 +26,7 @@ module.exports = {
           },
         ],
       });
+      console.log(posts);
       res.status(200).send(posts);
     } catch (error) {
       console.log("ERROR IN getAllPosts");
@@ -25,7 +37,7 @@ module.exports = {
 
   getCurrentUsersPosts: async (req, res) => {
     try {
-    const {userId} = req.params
+      const { userId } = req.params;
       const posts = await Post.findAll({
         where: { userId: userId },
         include: [
@@ -36,22 +48,11 @@ module.exports = {
           },
         ],
       });
+      console.log(posts);
       res.status(200).send(posts);
     } catch (error) {
       console.log("error in get posts");
       console.log(error);
-      res.sendStatus(400);
-    }
-  },
-
-  addPost: async (req, res) => {
-    try {
-      const { title, content, status, userId } = req.body;
-      await Post.create({ title, content, status, userId });
-      res.sendStatus(200);
-    } catch (err) {
-      console.log(err);
-      console.log("Cannot add post");
       res.sendStatus(400);
     }
   },
@@ -66,6 +67,7 @@ module.exports = {
           where: { id: +id },
         }
       );
+      res.sendStatus(200)
     } catch (err) {
       console.log(err);
       console.log("Cannot edit");
@@ -73,18 +75,17 @@ module.exports = {
     }
   },
 
-  deletePosts: async(req, res) => {
+  deletePosts: async (req, res) => {
     try {
-        const { id } = req.params;
-        await Post.delete(
-          {
-            where: { id: +id },
-          }
-        );
-      } catch (err) {
-        console.log(err);
-        console.log("Cannot delete");
-        res.sendStatus(400);
-      }
+      const { id } = req.params;
+      await Post.destroy({
+        where: { id: +id },
+      });
+      res.sendStatus(200)
+    } catch (err) {
+      console.log(err);
+      console.log("Cannot delete");
+      res.sendStatus(400);
+    }
   },
 };

@@ -19,12 +19,14 @@ const calculateRemainingTime = (exp) => {
 const getLocalData = () => {
   const storedToken = localStorage.getItem('token')
   const storedExp = localStorage.getItem('exp')
+  const storedId = localStorage.getItem('userId')
 
   const remainingTime = calculateRemainingTime(storedExp)
 
   if (remainingTime <= 1000 * 60 * 30) {
     localStorage.removeItem('token')
     localStorage.removeItem('exp')
+    localStorage.removeItem('userId')
     return null
   }
 
@@ -32,6 +34,7 @@ const getLocalData = () => {
   return {
     token: storedToken,
     duration: remainingTime,
+    userId: storedId
   }
 }
 
@@ -41,48 +44,46 @@ export const AuthContextProvider = (props) => {
   const localData = getLocalData()
   
   let initialToken
+  let initialId
   if (localData) {
     initialToken = localData.token
+    initialId = localData.userId
   }
 
   const [token, setToken] = useState(initialToken)
-  const [userId, setUserId] = useState(null)
-  //As the application boots up it checks the local storage to see if someone is logged in and then it saves that to state
-  
-  useEffect(() => {
-    let storedId = localStorage.getItem('userId')
-    if(storedId) {
-        setUserId(storedId)
+  const [userId, setUserId] = useState(initialId)
+
+
+  const logout = useCallback(() => {
+    setToken(null)
+    setUserId(null)
+    localStorage.removeItem('token')
+    localStorage.removeItem('exp')
+    localStorage.removeItem('userId')
+
+    if (logoutTimer) {
+      clearTimeout(logoutTimer)
     }
   }, [])
 
-  const logout = (token, userId, logoutTimer) => {
-    //Because these variables are just strings and not arrays setting them as null makes sure that they are now null and can't be called. Essentially logging out the user
-    setToken(null)
-    setUserId(null)
-
-    //By removing the item from the local storage it makes sure that we don't get messed up when we logout and login again. because then we would be checking against a different variable in the local storage.
-    localStorage.removeItem('userId')
-    localStorage.removeItem('token')
-    localStorage.removeItem('exp')
-
-    if(logoutTimer !== null){
-      clearTimeout(logoutTimer)
-    }
-  }
-
-  const login = (token, expTime, userId) => {
+  const login = (token, exp, userId) => {
     setToken(token)
     setUserId(userId)
-    localStorage.setItem('userId', userId)
-    localStorage.setItem('token', token)
-    localStorage.setItem('exp', expTime)
 
-    const remainingTime =calculateRemainingTime(expTime)
+    localStorage.setItem('token', token)
+    localStorage.setItem('exp', exp)
+    localStorage.setItem('userId', userId)
+
+    const remainingTime = calculateRemainingTime(exp)
 
     logoutTimer = setTimeout(logout, remainingTime)
-
   }
+
+  useEffect(() => {
+    if (localData) {
+      logoutTimer = setTimeout(logout, localData.duration)
+    }
+  }, [localData, logout])
 
   const contextValue = {
     token,

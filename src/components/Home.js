@@ -12,15 +12,18 @@ const Home = () => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
+    console.log('hit use effect')
     axios
       .get("http://localhost:4000/posts")
       .then((res) => {
         if (userId) {
+      console.log('hit if')
           const otherUsersPosts = res.data.filter(
             (post) => userId !== post.userId
           );
           setPosts(otherUsersPosts);
         } else {
+          console.log('hit else')
           setPosts(res.data);
         }
       })
@@ -28,6 +31,8 @@ const Home = () => {
         console.log(err);
       });
   }, [userId]);
+
+  console.log(userId)
 
   const mappedPosts = posts.map((post) => {
     return (
@@ -38,6 +43,7 @@ const Home = () => {
       </div>
     );
   });
+  console.log(userId)
 
   return mappedPosts.length >= 1 ? (
     <main>{mappedPosts}</main>

@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const { SECRET } = process.env;
 const { User } = require("../models/user");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const createToken = (username, id) => {
@@ -19,41 +19,10 @@ const createToken = (username, id) => {
 };
 
 module.exports = {
-  login: async (req, res) => {
-    try {
-      const { username, password } = req.body;
-      let foundUser = await User.findOne({ where:{username} });
-      if (foundUser) {
-        const isAuthenticated = bcrypt.compareSync(
-          password,
-          foundUser.hashedPass
-        );
-        if (isAuthenticated) {
-          let token = createToken(
-            foundUser.dataValues.username,
-            foundUser.dataValues.id
-          );
-          const exp = Date.now() + 1000 * 60 * 60 * 48;
-          res.status(200).send({
-            username: foundUser.dataValues.username,
-            userId: foundUser.dataValues.id,
-            token,
-            exp
-          });
-        } else {
-          res.status(400).send("No user found bucko");
-        }
-      } else {
-        res.status(400).send("No user found with that username bucko");
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  },
-
   register: async (req, res) => {
     try {
       const { username, password } = req.body;
+      console.log(password)
       let foundUser = await User.findOne({ where: { username } });
       if (foundUser) {
         res.status(400).send("Already a user");
@@ -62,8 +31,9 @@ module.exports = {
         const hash = bcrypt.hashSync(password, salt);
         let newUser = await User.create({
           username,
-          hashedPass: hash
+          hashPass: hash
         });
+        console.log(hash)
         let token = createToken(
           newUser.dataValues.username,
           newUser.dataValues.id
@@ -75,6 +45,37 @@ module.exports = {
           token: token,
           exp: exp,
         });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  },
+
+  login: async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      let foundUser = await User.findOne({ where: { username } });
+      console.log(foundUser)
+      if (foundUser) {
+        //make sure variable names match up with the names in the models
+        const isAuthenticated = bcrypt.compareSync(password, foundUser.hashPass)
+        if (isAuthenticated) {
+          const token = createToken(
+            foundUser.dataValues.username,
+            foundUser.dataValues.id
+          );
+          const exp = Date.now() + 1000 * 60 * 60 * 48;
+          res.status(200).send({
+            username: foundUser.dataValues.username,
+            userId: foundUser.dataValues.id,
+            token,
+            exp,
+          });
+        } else {
+          res.status(400).send("No user found bucko");
+        }
+      } else {
+        res.status(400).send("No user found with that username bucko");
       }
     } catch (err) {
       console.log(err);

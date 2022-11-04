@@ -7,10 +7,10 @@ module.exports = {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       allowNull: false,
-      primaryKey: true,
+      primaryKey: true
     },
     title: DataTypes.STRING,
-    content: DataTypes.STRING,
+    content: DataTypes.TEXT,
     privateStatus: DataTypes.BOOLEAN
   }),
 };

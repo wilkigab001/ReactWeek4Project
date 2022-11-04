@@ -63,7 +63,8 @@ const Profile = () => {
         <h2>{post.title}</h2>
         <h4>{post.user.username}</h4>
         <p>{post.content}</p>
-        {userId === post.userId && (
+        {console.log(typeof userId, post)}
+        {+userId === post.userId && (
           <div>
             <button
               className="form-btn"
@@ -84,6 +85,7 @@ const Profile = () => {
     );
   });
 
+  console.log(userId)
   return mappedPosts.length >= 1 ? (
     <main>{mappedPosts}</main>
   ) : (
