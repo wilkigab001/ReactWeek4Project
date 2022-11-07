@@ -1,10 +1,16 @@
 import { useState, useContext } from "react";
 import axios from "axios";
 import AuthContext from "../store/authContext";
+import ReactJsAlert from "reactjs-alert";
+
 const Auth = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [register, setRegister] = useState(true);
+
+  const [status, setStatus] = useState(false);
+  const [type, setType] = useState("Error");
+  const [title, setTitle] = useState("This is a alert");
 
   let authCtx = useContext(AuthContext);
 
@@ -12,15 +18,15 @@ const Auth = () => {
     e.preventDefault();
 
     console.log("submitHandler called");
-    
+
     const user = {
       username,
-      password
+      password,
     };
 
     if (register) {
       axios
-      //was pointing to https whenever using local host it has to be http
+        //was pointing to https whenever using local host it has to be http
         .post("http://localhost:4000/register", user)
         .then((res) => {
           console.log(res.data);
@@ -29,6 +35,8 @@ const Auth = () => {
         .catch((err) => {
           setPassword("");
           setUsername("");
+          setStatus(true);
+          setTitle("user definitely already exists please login");
         });
     } else if (!register) {
       axios
@@ -40,6 +48,8 @@ const Auth = () => {
         .catch((err) => {
           setPassword("");
           setUsername("");
+          setStatus(true);
+          setTitle("wrong credentials, try again bucko");
         });
     }
   };
@@ -67,6 +77,21 @@ const Auth = () => {
       <button className="form-btn" onClick={() => setRegister(!register)}>
         Need to {register ? "Login" : "Sign Up"}?
       </button>
+      {status ? (
+        <ReactJsAlert
+          status={status}
+          type={type}
+          title={title}
+          close={() => setStatus(false)}
+        />
+      ) : (
+        <ReactJsAlert
+          status={status}
+          type={type}
+          title={title}
+          close={() => setStatus(false)}
+        />
+      )}
     </main>
   );
 };

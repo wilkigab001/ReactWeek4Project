@@ -5,6 +5,7 @@ const { User } = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+
 const createToken = (username, id) => {
   return jwt.sign(
     {
